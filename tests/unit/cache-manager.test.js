@@ -403,6 +403,86 @@ describe('CacheManager', () => {
     });
   });
 
+  describe('Synchronous Cache Operations (getSync, isStaleSync)', () => {
+    test('getSync should return null if key not in memory cache', () => {
+      const manager = new CacheManager();
+      const result = manager.getSync('nonexistent');
+      expect(result).toBeNull();
+    });
+
+    test('getSync should return cached data if available and not expired', () => {
+      const manager = new CacheManager();
+      const testData = { imdb: '8.5', metacritic: '78' };
+
+      // Directly set in memory cache
+      manager.memoryCache.set('test_key', {
+        data: testData,
+        timestamp: Date.now(),
+      });
+
+      const result = manager.getSync('test_key');
+      expect(result).toEqual(testData);
+    });
+
+    test('getSync should return null if cached entry is expired', () => {
+      const manager = new CacheManager();
+      const testData = { imdb: '8.5' };
+      const oldTimestamp = Date.now() - (25 * 60 * 60 * 1000); // 25 hours ago
+
+      manager.memoryCache.set('expired_key', {
+        data: testData,
+        timestamp: oldTimestamp,
+      });
+
+      const result = manager.getSync('expired_key');
+      expect(result).toBeNull();
+      expect(manager.memoryCache.has('expired_key')).toBe(false); // Should be deleted
+    });
+
+    test('isStaleSync should return true for missing entries', () => {
+      const manager = new CacheManager();
+      const result = manager.isStaleSync('nonexistent');
+      expect(result).toBe(true);
+    });
+
+    test('isStaleSync should return false for fresh entries (less than 1 hour old)', () => {
+      const manager = new CacheManager();
+      const testData = { imdb: '8.5' };
+      const recentTimestamp = Date.now() - (30 * 60 * 1000); // 30 minutes ago
+
+      manager.memoryCache.set('fresh_key', {
+        data: testData,
+        timestamp: recentTimestamp,
+      });
+
+      const result = manager.isStaleSync('fresh_key');
+      expect(result).toBe(false);
+    });
+
+    test('isStaleSync should return true for stale entries (older than 1 hour)', () => {
+      const manager = new CacheManager();
+      const testData = { imdb: '8.5' };
+      const staleTimestamp = Date.now() - (90 * 60 * 1000); // 90 minutes ago
+
+      manager.memoryCache.set('stale_key', {
+        data: testData,
+        timestamp: staleTimestamp,
+      });
+
+      const result = manager.isStaleSync('stale_key');
+      expect(result).toBe(true);
+    });
+
+    test('getSync should handle errors gracefully', () => {
+      const manager = new CacheManager();
+      // Simulate corrupted cache entry
+      manager.memoryCache.set('corrupt_key', null);
+
+      const result = manager.getSync('corrupt_key');
+      expect(result).toBeNull(); // Should not throw, return null
+    });
+  });
+
   describe('Auto-initialization', () => {
     test('should auto-initialize if not initialized before get()', async () => {
       const manager = new CacheManager();

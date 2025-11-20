@@ -57,6 +57,20 @@
   font-size: 13px;
 }
 
+.rating-value.na {
+  opacity: 0.5;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.rating-item.rating-na .rating-label {
+  opacity: 0.5;
+}
+
+.rating-item.rating-na .rating-value {
+  opacity: 0.5;
+}
+
 /* ============================================================================
    Source-Specific Styling
    ============================================================================ */

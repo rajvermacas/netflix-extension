@@ -154,6 +154,61 @@ class CacheManager {
   }
 
   /**
+   * Get item from memory cache ONLY (synchronous, for immediate display)
+   * @param {string} key - Cache key
+   * @returns {any|null} Cached data or null if expired/missing
+   */
+  getSync(key) {
+    try {
+      const cached = this.memoryCache.get(key);
+      if (!cached) {
+        console.log('[CacheManager] Sync cache miss:', key);
+        return null;
+      }
+
+      // Check if expired (use default 24 hours if not initialized)
+      const durationMs = 24 * 60 * 60 * 1000; // Default
+      const age = Date.now() - cached.timestamp;
+
+      if (age > durationMs) {
+        console.log('[CacheManager] Sync cache expired:', key);
+        this.memoryCache.delete(key);
+        return null;
+      }
+
+      console.log('[CacheManager] Sync cache hit:', key);
+      return cached.data;
+    } catch (error) {
+      console.warn('[CacheManager] Error in sync cache get:', error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Check if cache entry is stale (older than 1 hour)
+   * @param {string} key - Cache key
+   * @returns {boolean} True if entry is older than 1 hour
+   */
+  isStaleSync(key) {
+    try {
+      const cached = this.memoryCache.get(key);
+      if (!cached) return true; // Missing = stale
+
+      const oneHourMs = 60 * 60 * 1000;
+      const age = Date.now() - cached.timestamp;
+      const stale = age > oneHourMs;
+
+      if (stale) {
+        console.log('[CacheManager] Entry is stale:', key, `(${Math.round(age / 60000)}m old)`);
+      }
+      return stale;
+    } catch (error) {
+      console.warn('[CacheManager] Error checking staleness:', error.message);
+      return true; // On error, assume stale
+    }
+  }
+
+  /**
    * Set item in cache (both persistent and memory)
    * @param {string} key - Cache key
    * @param {any} data - Data to cache
@@ -244,7 +299,8 @@ class CacheManager {
         const result = await chrome.storage.local.get([this.storageKey]);
         const cache = result[this.storageKey] || {};
         persistentItems = Object.keys(cache).length;
-        totalItems = Math.max(totalItems, persistentItems); // Use persistent if available
+        // Use persistent items count as it's the source of truth for storage
+        totalItems = persistentItems > 0 ? persistentItems : this.memoryCache.size;
 
         // Rough size estimate in bytes
         sizeEstimate = JSON.stringify(cache).length;

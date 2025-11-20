@@ -128,6 +128,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // Keep channel open for async response
   }
 
+  if (request.type === 'FETCH_RATINGS_CACHED') {
+    console.log('[Service Worker] Handling FETCH_RATINGS_CACHED request (sync cache only)');
+    handleFetchRatingsCached(request.payload, sendResponse);
+    return true; // Keep channel open for async response
+  }
+
   if (request.type === 'CLEAR_CACHE') {
     console.log('[Service Worker] Handling CLEAR_CACHE request');
     handleClearCache(sendResponse);
@@ -207,6 +213,57 @@ async function handleFetchRatings(payload, sendResponse) {
     sendResponse({ success: true, ratings });
   } catch (error) {
     console.error('[Service Worker] Error fetching ratings:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+/**
+ * Handle fetch ratings from cache only (synchronous cache, no API call)
+ * Used for immediate display on page reload
+ *
+ * @param {Object} payload - Request payload { title, year?, type? }
+ * @param {Function} sendResponse - Response callback
+ */
+async function handleFetchRatingsCached(payload, sendResponse) {
+  console.log('[Service Worker] Fetching ratings from cache only:', payload);
+
+  if (!payload || !payload.title) {
+    console.error('[Service Worker] Invalid payload: missing title');
+    sendResponse({ success: false, error: 'Title is required' });
+    return;
+  }
+
+  try {
+    // Wait for cache manager to be ready
+    if (!cacheManager) {
+      await initializeCacheManager();
+    }
+
+    // Create cache key
+    const cacheKey = createCacheKey(payload);
+
+    // Try synchronous cache lookup (memory cache only, immediate)
+    if (cacheManager.getSync) {
+      const cached = cacheManager.getSync(cacheKey);
+      if (cached) {
+        console.log('[Service Worker] Sync cache hit for:', payload.title);
+        sendResponse({ success: true, ratings: cached, source: 'memory-cache' });
+        return;
+      }
+    }
+
+    // Try async cache lookup as fallback
+    const cached = await cacheManager.get(cacheKey);
+    if (cached) {
+      console.log('[Service Worker] Cache hit (persistent) for:', payload.title);
+      sendResponse({ success: true, ratings: cached, source: 'persistent-cache' });
+      return;
+    }
+
+    console.log('[Service Worker] No cached data available for:', payload.title);
+    sendResponse({ success: false, error: 'No cached data' });
+  } catch (error) {
+    console.error('[Service Worker] Error fetching from cache:', error);
     sendResponse({ success: false, error: error.message });
   }
 }

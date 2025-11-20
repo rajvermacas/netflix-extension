@@ -211,18 +211,19 @@ async function processTitleCard(card) {
 
   console.log('[Netflix Ratings] Extracted title info:', titleInfo);
 
-  // Fetch ratings from service worker
-  try {
-    const ratings = await fetchRatings(titleInfo);
+  // Try to fetch ratings from cache immediately (cache-first strategy)
+  let ratings = await fetchRatingsCached(titleInfo);
 
-    if (ratings) {
-      console.log('[Netflix Ratings] Received ratings:', ratings);
-      injectRatingBadge(card, ratings);
-    } else {
-      console.log('[Netflix Ratings] No ratings available for:', titleInfo.title);
-    }
+  if (ratings) {
+    console.log('[Netflix Ratings] Received ratings from cache:', ratings);
+    injectRatingBadge(card, ratings, { isFromCache: true });
+  }
+
+  // Fetch fresh ratings in background (non-blocking)
+  try {
+    refreshRatingsInBackground(card, titleInfo);
   } catch (error) {
-    console.error('[Netflix Ratings] Error fetching ratings:', error);
+    console.error('[Netflix Ratings] Error starting background refresh:', error);
   }
 }
 
@@ -279,10 +280,9 @@ function extractTitleInfo(card) {
     console.log('[Netflix Ratings] Found title via dialog aria-label:', title);
   }
 
-  // Extract year if available
-  const yearElement = card.querySelector('.year, .titleCard-year, .item-year');
-  if (yearElement) {
-    year = yearElement.textContent.trim();
+  // Extract year if available - try multiple strategies
+  year = extractYear(card);
+  if (year) {
     console.log('[Netflix Ratings] Found year:', year);
   }
 
@@ -298,6 +298,82 @@ function extractTitleInfo(card) {
   }
 
   return { title, year, type };
+}
+
+/**
+ * Extract year from card using multiple strategies
+ *
+ * @param {HTMLElement} card - Title card element
+ * @returns {string|null} Year or null if not found
+ */
+function extractYear(card) {
+  // Strategy 1: Direct year element selectors
+  const yearSelectors = [
+    '.year',
+    '.titleCard-year',
+    '.item-year',
+    '.video-metadata-year',
+    '.year-text',
+    '.release-year',
+    '[data-uia="mini-modal-year"]',
+    '.metadata-year',
+  ];
+
+  for (const selector of yearSelectors) {
+    const element = card.querySelector(selector);
+    if (element) {
+      const text = element.textContent.trim();
+      const year = extractYearFromText(text);
+      if (year) {
+        console.log('[Netflix Ratings] Year found via selector:', selector, '→', year);
+        return year;
+      }
+    }
+  }
+
+  // Strategy 2: Search in text content for year pattern (4 digits between 1900-2100)
+  const allText = card.textContent;
+  const yearMatch = allText.match(/\b(19\d{2}|20[0-9]{2})\b/);
+  if (yearMatch) {
+    console.log('[Netflix Ratings] Year found via text pattern:', yearMatch[1]);
+    return yearMatch[1];
+  }
+
+  // Strategy 3: Look in metadata strings like "2024 | 2h 30m | Drama"
+  const metadataElements = card.querySelectorAll('span, div, p');
+  for (const elem of metadataElements) {
+    const text = elem.textContent.trim();
+    // Match pattern like "2024 |" or "2024, "
+    const metaMatch = text.match(/^(19\d{2}|20[0-9]{2})\s*[|,]/);
+    if (metaMatch) {
+      console.log('[Netflix Ratings] Year found via metadata pattern:', metaMatch[1]);
+      return metaMatch[1];
+    }
+  }
+
+  // Strategy 4: Billboard/hero specific selectors
+  const billboardYear = card.querySelector('.billboard-year, .hero-year, .preview-year');
+  if (billboardYear) {
+    const text = billboardYear.textContent.trim();
+    const year = extractYearFromText(text);
+    if (year) {
+      console.log('[Netflix Ratings] Year found via billboard selector:', year);
+      return year;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract 4-digit year from text
+ *
+ * @param {string} text - Text to search
+ * @returns {string|null} Year or null if not found
+ */
+function extractYearFromText(text) {
+  const match = text.match(/\b(19\d{2}|20[0-9]{2})\b/);
+  return match ? match[1] : null;
 }
 
 /**
@@ -351,13 +427,68 @@ async function fetchRatings(titleInfo) {
 }
 
 /**
+ * Fetch ratings with cache check (cache-first strategy)
+ * Uses synchronous memory cache for immediate availability on page reload
+ *
+ * @param {Object} titleInfo - Title information { title, year?, type? }
+ * @returns {Promise<Object|null>} Ratings object or null
+ */
+async function fetchRatingsCached(titleInfo) {
+  console.log('[Netflix Ratings] Fetching ratings (cache-first):', titleInfo);
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: 'FETCH_RATINGS_CACHED',
+      payload: titleInfo,
+    });
+
+    console.log('[Netflix Ratings] Received cached response from service worker:', response);
+
+    if (response && response.success) {
+      return response.ratings;
+    } else {
+      console.log('[Netflix Ratings] Service worker returned no cached data:', response?.error);
+      return null;
+    }
+  } catch (error) {
+    console.error('[Netflix Ratings] Error fetching cached ratings:', error);
+    return null;
+  }
+}
+
+/**
+ * Refresh ratings in background without blocking UI
+ * If fresh data differs from cache, updates the badge
+ *
+ * @param {HTMLElement} card - Title card element
+ * @param {Object} titleInfo - Title information { title, year?, type? }
+ */
+async function refreshRatingsInBackground(card, titleInfo) {
+  try {
+    console.log('[Netflix Ratings] Starting background refresh:', titleInfo);
+
+    // Fetch fresh ratings from service worker (will hit API if cache is stale)
+    const ratings = await fetchRatings(titleInfo);
+
+    if (ratings) {
+      console.log('[Netflix Ratings] Background refresh complete, updating badge');
+      // Update the badge with fresh data
+      injectRatingBadge(card, ratings, { isFromCache: false });
+    }
+  } catch (error) {
+    console.error('[Netflix Ratings] Error in background refresh:', error);
+  }
+}
+
+/**
  * Inject rating badge into title card
  *
  * @param {HTMLElement} card - Title card element
  * @param {Object} ratings - Ratings object { imdb?, metacritic?, rottenTomatoes? }
+ * @param {Object} options - Options { isFromCache?: boolean }
  */
-function injectRatingBadge(card, ratings) {
-  console.log('[Netflix Ratings] Injecting rating badge into card');
+function injectRatingBadge(card, ratings, options = {}) {
+  console.log('[Netflix Ratings] Injecting rating badge into card', options.isFromCache ? '[CACHED]' : '[FRESH]');
 
   // Check if badge already exists
   const existingBadge = card.querySelector(`.${CONFIG.RATING_BADGE_CLASS}`);
@@ -370,28 +501,23 @@ function injectRatingBadge(card, ratings) {
   const badge = document.createElement('div');
   badge.className = CONFIG.RATING_BADGE_CLASS;
 
-  // Add individual rating elements
+  // Always add all three rating sources, showing 'N/A' for missing ones
   const ratingElements = [];
 
-  if (ratings.imdb) {
-    const imdbElement = createRatingElement('IMDb', ratings.imdb.value, 'imdb');
-    ratingElements.push(imdbElement);
-  }
+  // IMDb rating
+  const imdbValue = ratings.imdb ? ratings.imdb.value : 'N/A';
+  const imdbElement = createRatingElement('IMDb', imdbValue, 'imdb', !ratings.imdb);
+  ratingElements.push(imdbElement);
 
-  if (ratings.metacritic) {
-    const mcElement = createRatingElement('MC', ratings.metacritic.value, 'metacritic');
-    ratingElements.push(mcElement);
-  }
+  // Metacritic rating
+  const mcValue = ratings.metacritic ? ratings.metacritic.value : 'N/A';
+  const mcElement = createRatingElement('MC', mcValue, 'metacritic', !ratings.metacritic);
+  ratingElements.push(mcElement);
 
-  if (ratings.rottenTomatoes) {
-    const rtElement = createRatingElement('RT', ratings.rottenTomatoes.value, 'rt');
-    ratingElements.push(rtElement);
-  }
-
-  if (ratingElements.length === 0) {
-    console.log('[Netflix Ratings] No ratings to display');
-    return;
-  }
+  // Rotten Tomatoes rating
+  const rtValue = ratings.rottenTomatoes ? ratings.rottenTomatoes.value : 'N/A';
+  const rtElement = createRatingElement('RT', rtValue, 'rt', !ratings.rottenTomatoes);
+  ratingElements.push(rtElement);
 
   ratingElements.forEach(elem => badge.appendChild(elem));
 
@@ -399,7 +525,7 @@ function injectRatingBadge(card, ratings) {
   const injectionPoint = findBadgeInjectionPoint(card);
   if (injectionPoint) {
     injectionPoint.appendChild(badge);
-    console.log('[Netflix Ratings] Badge injected successfully');
+    console.log('[Netflix Ratings] Badge injected successfully with all 3 rating sources');
   } else {
     console.log('[Netflix Ratings] Could not find suitable injection point');
   }
@@ -411,18 +537,19 @@ function injectRatingBadge(card, ratings) {
  * @param {string} label - Rating label (e.g., 'IMDb', 'MC', 'RT')
  * @param {string} value - Rating value
  * @param {string} source - Rating source identifier
+ * @param {boolean} isUnavailable - Whether the rating is unavailable (N/A)
  * @returns {HTMLElement} Rating element
  */
-function createRatingElement(label, value, source) {
+function createRatingElement(label, value, source, isUnavailable = false) {
   const element = document.createElement('div');
-  element.className = `rating-item rating-${source}`;
+  element.className = `rating-item rating-${source}${isUnavailable ? ' rating-na' : ''}`;
 
   const labelSpan = document.createElement('span');
   labelSpan.className = 'rating-label';
   labelSpan.textContent = label;
 
   const valueSpan = document.createElement('span');
-  valueSpan.className = 'rating-value';
+  valueSpan.className = `rating-value${isUnavailable ? ' na' : ''}`;
   valueSpan.textContent = value;
 
   element.appendChild(labelSpan);
