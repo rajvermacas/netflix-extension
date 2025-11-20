@@ -1,0 +1,27 @@
+{
+  "name": "netflix-ratings-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension that shows IMDb, Metacritic, and Rotten Tomatoes ratings on Netflix",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "build": "echo 'Build script to be implemented'",
+    "dev": "echo 'Dev server script to be implemented'"
+  },
+  "keywords": [
+    "chrome-extension",
+    "netflix",
+    "ratings",
+    "imdb",
+    "metacritic",
+    "rotten-tomatoes"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "dependencies": {}
+}

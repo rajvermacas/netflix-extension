@@ -1,0 +1,365 @@
+/**
+ * Netflix Ratings Extension - Content Styles
+ *
+ * Styles for rating badges injected into Netflix pages
+ */
+
+/* ============================================================================
+   Rating Badge Container
+   ============================================================================ */
+
+.netflix-ratings-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 4px;
+  font-family: Netflix Sans, Helvetica Neue, Segoe UI, Roboto, Ubuntu, sans-serif;
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.netflix-ratings-badge:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* ============================================================================
+   Individual Rating Items
+   ============================================================================ */
+
+.rating-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.rating-label {
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.rating-value {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ============================================================================
+   Source-Specific Styling
+   ============================================================================ */
+
+/* IMDb Rating - Yellow theme */
+.rating-imdb .rating-label {
+  color: #f5c518;
+}
+
+.rating-imdb .rating-value {
+  color: #f5c518;
+}
+
+/* Metacritic Rating - Green/Yellow/Red theme based on score */
+.rating-metacritic .rating-label {
+  color: #66cc33;
+}
+
+.rating-metacritic .rating-value {
+  color: #66cc33;
+}
+
+/* Rotten Tomatoes Rating - Red theme */
+.rating-rt .rating-label {
+  color: #fa320a;
+}
+
+.rating-rt .rating-value {
+  color: #fa320a;
+}
+
+/* ============================================================================
+   Separator Between Ratings
+   ============================================================================ */
+
+.rating-item:not(:last-child)::after {
+  content: '•';
+  margin-left: 8px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+}
+
+/* ============================================================================
+   Responsive Adjustments
+   ============================================================================ */
+
+/* Smaller badges for smaller cards */
+@media (max-width: 768px) {
+  .netflix-ratings-badge {
+    padding: 4px 6px;
+    gap: 6px;
+    font-size: 10px;
+  }
+
+  .rating-item {
+    font-size: 10px;
+  }
+
+  .rating-label {
+    font-size: 9px;
+  }
+
+  .rating-value {
+    font-size: 11px;
+  }
+}
+
+/* ============================================================================
+   Alternative Placement - Top Right
+   ============================================================================ */
+
+.netflix-ratings-badge.badge-top-right {
+  top: 8px;
+  right: 8px;
+  bottom: auto;
+  left: auto;
+}
+
+/* ============================================================================
+   Alternative Placement - Bottom Right
+   ============================================================================ */
+
+.netflix-ratings-badge.badge-bottom-right {
+  bottom: 8px;
+  right: 8px;
+  left: auto;
+}
+
+/* ============================================================================
+   Compact Mode - Vertical Layout
+   ============================================================================ */
+
+.netflix-ratings-badge.badge-compact {
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+}
+
+.netflix-ratings-badge.badge-compact .rating-item {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.netflix-ratings-badge.badge-compact .rating-item:not(:last-child)::after {
+  display: none;
+}
+
+/* ============================================================================
+   Loading State
+   ============================================================================ */
+
+.netflix-ratings-badge.loading {
+  opacity: 0.6;
+}
+
+.netflix-ratings-badge.loading::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: rating-spinner 0.8s linear infinite;
+}
+
+@keyframes rating-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================================
+   Error State
+   ============================================================================ */
+
+.netflix-ratings-badge.error {
+  background: rgba(229, 9, 20, 0.85);
+}
+
+.netflix-ratings-badge.error .rating-value {
+  color: #ffffff;
+}
+
+/* ============================================================================
+   Hover Effects for Parent Cards
+   ============================================================================ */
+
+.title-card-container:hover .netflix-ratings-badge,
+.slider-item:hover .netflix-ratings-badge,
+[data-uia="video-card"]:hover .netflix-ratings-badge {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* ============================================================================
+   Integration with Netflix UI
+   ============================================================================ */
+
+/* Ensure badge doesn't interfere with Netflix hover effects */
+.boxart-container {
+  position: relative;
+}
+
+/* Hide badge during Netflix's own transitions */
+.slider-item.slider-refocus .netflix-ratings-badge {
+  transition: opacity 0.1s ease;
+}
+
+/* ============================================================================
+   Accessibility Improvements
+   ============================================================================ */
+
+.netflix-ratings-badge {
+  /* Ensure text is readable */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus state for keyboard navigation */
+.netflix-ratings-badge:focus-within {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Dark Mode Adjustments (if Netflix implements)
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .netflix-ratings-badge {
+    background: rgba(20, 20, 20, 0.95);
+  }
+}
+
+/* ============================================================================
+   Print Styles
+   ============================================================================ */
+
+@media print {
+  .netflix-ratings-badge {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   Modal/Dialog Specific Styling
+   ============================================================================ */
+
+[role="dialog"] .netflix-ratings-badge {
+  bottom: auto;
+  top: 20px;
+  right: 20px;
+  left: auto;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+[role="dialog"] .netflix-ratings-badge .rating-value {
+  font-size: 15px;
+}
+
+/* ============================================================================
+   Billboard (Homepage Hero) Specific Styling
+   ============================================================================ */
+
+.billboard-row .netflix-ratings-badge {
+  position: absolute;
+  top: 40%;
+  right: 60px;
+  left: auto;
+  bottom: auto;
+  padding: 10px 15px;
+  font-size: 16px;
+  gap: 12px;
+}
+
+.billboard-row .netflix-ratings-badge .rating-value {
+  font-size: 18px;
+}
+
+.billboard-row .netflix-ratings-badge .rating-label {
+  font-size: 12px;
+}
+
+/* ============================================================================
+   Jawbone Preview Specific Styling
+   ============================================================================ */
+
+.jawBone .netflix-ratings-badge {
+  top: 20px;
+  right: 40px;
+  left: auto;
+  bottom: auto;
+  padding: 8px 14px;
+}
+
+/* ============================================================================
+   Animation on Injection
+   ============================================================================ */
+
+.netflix-ratings-badge {
+  animation: badge-fade-in 0.3s ease-out;
+}
+
+@keyframes badge-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   High Contrast Mode
+   ============================================================================ */
+
+@media (prefers-contrast: high) {
+  .netflix-ratings-badge {
+    background: rgba(0, 0, 0, 1);
+    border: 2px solid #ffffff;
+  }
+
+  .rating-label,
+  .rating-value {
+    color: #ffffff;
+  }
+}
+
+/* ============================================================================
+   Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .netflix-ratings-badge {
+    animation: none;
+    transition: none;
+  }
+
+  .netflix-ratings-badge:hover {
+    transform: none;
+  }
+}

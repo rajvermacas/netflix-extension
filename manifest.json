@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Netflix Ratings",
+  "version": "1.0.0",
+  "description": "Shows IMDb, Metacritic, and Rotten Tomatoes ratings on Netflix",
+  "permissions": [
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.netflix.com/*",
+    "https://www.omdbapi.com/*",
+    "https://www.imdb.com/*",
+    "https://www.rottentomatoes.com/*",
+    "https://www.metacritic.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.netflix.com/*"
+      ],
+      "js": [
+        "src/content/content-script.js"
+      ],
+      "css": [
+        "src/styles/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Netflix Ratings"
+  }
+}

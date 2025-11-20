@@ -1,0 +1,73 @@
+{
+  "browsePageTitle": {
+    "description": "Title element from Netflix browse/homepage carousel",
+    "html": "<div class=\"title-card-container\" data-uia=\"video-card\"><div class=\"boxart-size-16x9 boxart-container boxart-rounded\"><img class=\"boxart-image boxart-image-in-padded-container\" src=\"https://example.com/image.jpg\" alt=\"\"></div><div class=\"bob-title\" data-uia=\"video-title\">Stranger Things</div></div>",
+    "selector": "[data-uia='video-title']",
+    "titleText": "Stranger Things"
+  },
+  "detailModalTitle": {
+    "description": "Title element from Netflix detail/preview modal",
+    "html": "<div role=\"dialog\" aria-label=\"Stranger Things\"><div class=\"previewModal--container\"><div class=\"previewModal--player-titleTreatment-logo\" data-uia=\"video-title\"><img alt=\"Stranger Things\" src=\"https://example.com/title-treatment.png\"></div></div></div>",
+    "selector": "[role='dialog'] [data-uia='video-title']",
+    "titleText": "Stranger Things",
+    "altMethod": "Extract from aria-label attribute"
+  },
+  "videoPlayerTitle": {
+    "description": "Title element from Netflix video player",
+    "html": "<div class=\"video-title\" data-uia=\"video-title\"><h4 class=\"ellipsize-text\">Stranger Things: Season 1: Chapter One: The Vanishing of Will Byers</h4></div>",
+    "selector": ".video-title [data-uia='video-title']",
+    "titleText": "Stranger Things",
+    "notes": "May include season/episode info that needs parsing"
+  },
+  "titleWithYear": {
+    "description": "Title card with year metadata",
+    "html": "<div class=\"title-card\" data-uia=\"video-card\"><div data-uia=\"video-title\">The Shawshank Redemption</div><div class=\"titleCard--metadataWrapper\"><span class=\"year\">1994</span></div></div>",
+    "selector": "[data-uia='video-title']",
+    "yearSelector": ".titleCard--metadataWrapper .year",
+    "titleText": "The Shawshank Redemption",
+    "year": "1994"
+  },
+  "seriesTitle": {
+    "description": "TV series title from browse page",
+    "html": "<div class=\"slider-item\" data-uia=\"video-card\"><div class=\"fallback-text-container\" data-uia=\"video-title\"><p class=\"fallback-text\">Breaking Bad</p></div><div class=\"titleCard-metadataWrapper\"><div class=\"titleCard-title_index\">1</div></div></div>",
+    "selector": "[data-uia='video-title'] .fallback-text",
+    "titleText": "Breaking Bad",
+    "type": "series"
+  },
+  "movieTitle": {
+    "description": "Movie title from browse page",
+    "html": "<div class=\"slider-refocus\" data-uia=\"video-card\"><div class=\"ptrack-content\"><a aria-label=\"Inception\" role=\"link\"><div class=\"boxart-container\"><img alt=\"Inception\" src=\"https://example.com/inception.jpg\"></div></a></div></div>",
+    "selector": "a[aria-label]",
+    "titleText": "Inception",
+    "type": "movie",
+    "extractFrom": "aria-label attribute"
+  },
+  "billboardTitle": {
+    "description": "Main billboard/hero title on homepage",
+    "html": "<div class=\"billboard-row\"><div class=\"billboard-pres\"><div class=\"billboard-title\"><img alt=\"Squid Game\" src=\"https://example.com/squid-game-logo.png\"></div><div class=\"billboard-synopsis\" data-uia=\"billboard-synopsis\">Hundreds of cash-strapped players accept a strange invitation...</div></div></div>",
+    "selector": ".billboard-title img[alt]",
+    "titleText": "Squid Game",
+    "extractFrom": "img alt attribute"
+  },
+  "jawBoneTitle": {
+    "description": "Jawbone (large preview) title",
+    "html": "<div class=\"jawBone\" data-uia=\"jawbone-container\"><div class=\"jawBone-title-treatments\"><img class=\"previewModal-jawbone-logo\" alt=\"The Crown\" src=\"https://example.com/crown-logo.png\"></div></div>",
+    "selector": ".jawBone .previewModal-jawbone-logo[alt]",
+    "titleText": "The Crown",
+    "extractFrom": "img alt attribute"
+  },
+  "myListTitle": {
+    "description": "Title from My List page",
+    "html": "<div class=\"my-list-item\" data-uia=\"video-card\"><div class=\"fallback-text\" data-uia=\"video-title\">Dark</div><div class=\"item-year\">2017</div></div>",
+    "selector": "[data-uia='video-title']",
+    "titleText": "Dark",
+    "year": "2017"
+  },
+  "continueWatchingTitle": {
+    "description": "Title from Continue Watching row",
+    "html": "<div class=\"continue-watching-row\"><div class=\"slider-item\" data-uia=\"video-card\"><div class=\"bob-title\" data-uia=\"video-title\">Money Heist</div><div class=\"progress-bar\"><div class=\"progress\" style=\"width: 45%\"></div></div></div></div>",
+    "selector": "[data-uia='video-title']",
+    "titleText": "Money Heist",
+    "notes": "Shows watch progress"
+  }
+}

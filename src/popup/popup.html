@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netflix Ratings Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <h1 class="popup-title">Netflix Ratings</h1>
+      <p class="popup-subtitle">IMDb, Metacritic & Rotten Tomatoes</p>
+    </header>
+
+    <!-- API Key Section -->
+    <section class="section">
+      <h2 class="section-title">API Configuration</h2>
+      <div class="input-group">
+        <label for="api-key" class="label">OMDB API Key:</label>
+        <input
+          type="text"
+          id="api-key"
+          class="input"
+          placeholder="Enter your OMDB API key"
+          autocomplete="off"
+        >
+        <p class="help-text">
+          Get your free API key at
+          <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" class="link">
+            omdbapi.com
+          </a>
+        </p>
+      </div>
+      <button id="save-api-key" class="button button-primary">Save API Key</button>
+    </section>
+
+    <!-- Cache Management -->
+    <section class="section">
+      <h2 class="section-title">Cache Management</h2>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">Cached Items:</span>
+          <span id="cache-size" class="stat-value">-</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Cache Duration:</span>
+          <span class="stat-value">24 hours</span>
+        </div>
+      </div>
+      <button id="clear-cache" class="button button-secondary">Clear Cache</button>
+    </section>
+
+    <!-- Status Section -->
+    <section class="section">
+      <h2 class="section-title">Status</h2>
+      <div id="status" class="status-message"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <p class="footer-text">Version 1.0.0</p>
+      <p class="footer-text">
+        <a href="https://github.com" target="_blank" class="link">GitHub</a> •
+        <a href="https://github.com/issues" target="_blank" class="link">Report Issue</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

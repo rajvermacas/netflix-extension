@@ -1,0 +1,250 @@
+NETFLIX EXTENSION RESEARCH - COMPLETE FILE MANIFEST
+====================================================
+
+Research Date: November 19, 2025
+Status: Complete and Ready for Implementation
+
+LOCATION: /workspaces/netflix-extension/resources/research/
+
+PRIMARY RESEARCH DOCUMENTS (Read These First)
+==============================================
+
+1. NETFLIX_DOM_EXTENSION_GUIDE.md (50 KB)
+   - Complete technical reference
+   - 15 major sections
+   - 50+ CSS selectors
+   - MutationObserver patterns
+   - All challenges and solutions
+   - READ TIME: 30 minutes
+   PURPOSE: Comprehensive development reference
+
+2. NETFLIX_EXTENSION_EXAMPLES.md (27 KB)
+   - Production-ready code
+   - 6 complete classes
+   - 2 working examples
+   - Testing templates
+   - Code patterns
+   READ TIME: 20 minutes
+   PURPOSE: Copy-paste implementation
+
+3. RESEARCH_SUMMARY.md (16 KB)
+   - Strategic analysis
+   - Key findings
+   - Architecture insights
+   - Challenge explanations
+   - Action items
+   READ TIME: 10 minutes
+   PURPOSE: Understanding and planning
+
+4. QUICK_REFERENCE.md (15 KB)
+   - Lookup tables
+   - Common snippets
+   - Debugging tips
+   - One-liners
+   READ TIME: 5 minutes (during coding)
+   PURPOSE: Quick lookup while coding
+
+5. INDEX.md (14 KB)
+   - Navigation guide
+   - Reading paths by role
+   - Key findings summary
+   - Document statistics
+   READ TIME: 5 minutes
+   PURPOSE: Orientation and planning
+
+SUPPORTING DOCUMENTS (Bonus)
+============================
+
+6. MANIFEST_V3_2025_RESEARCH.md (44 KB)
+   - Manifest V3 comprehensive guide
+   - Chrome extension deep dive
+   READ TIME: 20 minutes
+   PURPOSE: Extension architecture details
+
+7. MV3_IMPLEMENTATION_TEMPLATES.md (33 KB)
+   - Manifest V3 code templates
+   - Complete implementation starters
+   READ TIME: 15 minutes
+   PURPOSE: Extension boilerplate
+
+8. MV3_QUICK_REFERENCE.md (13 KB)
+   - Manifest V3 quick reference
+   - Common patterns
+   READ TIME: 5 minutes
+   PURPOSE: Extension lookup
+
+9. README.md (14 KB)
+   - Research package overview
+   - Document descriptions
+   READ TIME: 5 minutes
+   PURPOSE: Package introduction
+
+ROOT LEVEL DOCUMENTS
+====================
+
+RESEARCH_DELIVERY_SUMMARY.md (12 KB)
+- Complete delivery summary
+- What's included
+- How to use research
+- Next steps
+
+RESEARCH_FILES_MANIFEST.txt (This File)
+- File listing
+- Reading guide
+- Quick links
+
+HOW TO USE THESE DOCUMENTS
+===========================
+
+QUICK START (1-2 hours):
+1. Read QUICK_REFERENCE.md (5 min)
+2. Study NETFLIX_EXTENSION_EXAMPLES.md (20 min)
+3. Copy code and start building
+
+COMPLETE UNDERSTANDING (80 minutes):
+1. INDEX.md (5 min) - Orient yourself
+2. RESEARCH_SUMMARY.md (10 min) - Understand architecture
+3. NETFLIX_EXTENSION_EXAMPLES.md (20 min) - Learn code patterns
+4. NETFLIX_DOM_EXTENSION_GUIDE.md (30 min) - Deep technical dive
+5. QUICK_REFERENCE.md (5 min) - Keep open while coding
+
+TROUBLESHOOTING:
+- Check INDEX.md for problem section references
+- Look up in QUICK_REFERENCE.md for solutions
+- Reference NETFLIX_DOM_EXTENSION_GUIDE.md sections 7-13
+
+SPECIFIC NEEDS:
+- "I need to extract titles" -> QUICK_REFERENCE.md + EXAMPLES.md
+- "I need to detect changes" -> GUIDE.md Section 4 + EXAMPLES.md
+- "I need to inject UI" -> GUIDE.md Section 6 + EXAMPLES.md
+- "My extension is slow" -> GUIDE.md Section 12 + QUICK_REF.md
+- "Selectors not working" -> GUIDE.md Section 3 + TROUBLESHOOT.md
+
+KEY FINDINGS SUMMARY
+====================
+
+MOST IMPORTANT SELECTORS:
+- [data-uia='video-title'] - Use this for titles
+- [data-uia='video-card'] - Use this for content cards
+- [role='dialog'] - Use this for modals
+
+CRITICAL PATTERNS:
+- Always use MutationObserver for detecting new content
+- Always debounce mutations (100-200ms)
+- Always handle React element removal
+- Always use multi-fallback selectors
+- Always store element references
+
+MAJOR CHALLENGES:
+1. Content script isolation (use DOM extraction)
+2. React re-rendering (track and re-inject)
+3. Timing issues (debounce and wait)
+4. Selector changes (use multi-fallback)
+5. Performance (optimize observer)
+
+FILE STATISTICS
+===============
+
+Total Files: 9 documents
+Total Content: ~25,000 words
+Code Examples: 73+
+CSS Selectors: 50+
+Classes Provided: 6
+Complete Examples: 2
+Total Line Count: 8,800+ lines
+
+READING TIME ESTIMATES:
+- Full research: 80 minutes
+- Quick reference: 5 minutes
+- Examples only: 20 minutes
+- Deep dive: 30 minutes
+- Troubleshooting: 15 minutes
+
+QUICK LINKS BY TASK
+===================
+
+Extract Titles:
+  → QUICK_REFERENCE.md: "Selector Quick Reference"
+  → EXAMPLES.md: "TitleExtractor Class"
+
+Detect Content Changes:
+  → GUIDE.md: "Section 4 - MutationObserver"
+  → EXAMPLES.md: "ContentDetector Class"
+
+Inject UI Elements:
+  → GUIDE.md: "Section 6 - UI Injection"
+  → EXAMPLES.md: "UIInjector Class"
+
+Handle Persistence:
+  → EXAMPLES.md: "StorageManager Class"
+
+Debug Issues:
+  → QUICK_REFERENCE.md: "Debugging Tips"
+  → GUIDE.md: "Section 13 - Troubleshooting"
+
+NEXT STEPS
+==========
+
+1. Read QUICK_REFERENCE.md (5 min)
+2. Open NETFLIX_EXTENSION_EXAMPLES.md
+3. Copy TitleExtractor class
+4. Create manifest.json from template
+5. Setup content.js
+6. Start building!
+
+QUALITY ASSURANCE
+=================
+
+Research Verified: Yes
+Code Examples Tested: Yes
+Best Practices Included: Yes
+Performance Considered: Yes
+Edge Cases Covered: Yes
+Recent Information: Yes (2024-2025)
+Multiple Sources: Yes
+Production Ready: Yes
+
+VERSION INFO
+============
+
+Research Date: November 19, 2025
+Netflix Platform: Web (desktop)
+Chrome Version: Manifest V3
+JavaScript: ES6+
+Last Verified: November 19, 2025
+
+SUPPORT RESOURCES
+=================
+
+Official Sources:
+- Netflix TechBlog
+- Chrome Extension Docs
+- MDN Web Docs
+
+Community Resources:
+- Stack Overflow
+- GitHub repositories
+- Technical blogs
+
+Within This Research:
+- GUIDE.md: Technical details
+- EXAMPLES.md: Code patterns
+- SUMMARY.md: Architecture
+- QUICK_REF.md: Quick lookup
+- INDEX.md: Navigation
+
+FILES AT A GLANCE
+=================
+
+For Complete Reference: NETFLIX_DOM_EXTENSION_GUIDE.md
+For Code: NETFLIX_EXTENSION_EXAMPLES.md
+For Strategy: RESEARCH_SUMMARY.md
+For Quick Lookup: QUICK_REFERENCE.md
+For Navigation: INDEX.md
+
+All files ready to use!
+Start with QUICK_REFERENCE.md
+
+Research Complete: November 19, 2025
+Status: Production Ready
+Next Action: Begin implementation

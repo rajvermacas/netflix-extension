@@ -1,0 +1,189 @@
+{
+  "movieByIdSuccess": {
+    "Title": "The Shawshank Redemption",
+    "Year": "1994",
+    "Rated": "R",
+    "Released": "14 Oct 1994",
+    "Runtime": "142 min",
+    "Genre": "Drama",
+    "Director": "Frank Darabont",
+    "Writer": "Stephen King, Frank Darabont",
+    "Actors": "Tim Robbins, Morgan Freeman, Bob Gunton",
+    "Plot": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+    "Language": "English",
+    "Country": "United States",
+    "Awards": "Nominated for 7 Oscars. 21 wins & 42 nominations total",
+    "Poster": "https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_SX300.jpg",
+    "Ratings": [
+      {
+        "Source": "Internet Movie Database",
+        "Value": "9.3/10"
+      },
+      {
+        "Source": "Rotten Tomatoes",
+        "Value": "89%"
+      },
+      {
+        "Source": "Metacritic",
+        "Value": "82/100"
+      }
+    ],
+    "Metascore": "82",
+    "imdbRating": "9.3",
+    "imdbVotes": "2,705,936",
+    "imdbID": "tt0111161",
+    "Type": "movie",
+    "DVD": "N/A",
+    "BoxOffice": "$28,767,189",
+    "Production": "N/A",
+    "Website": "N/A",
+    "Response": "True"
+  },
+  "seriesByIdSuccess": {
+    "Title": "Breaking Bad",
+    "Year": "2008–2013",
+    "Rated": "TV-MA",
+    "Released": "20 Jan 2008",
+    "Runtime": "49 min",
+    "Genre": "Crime, Drama, Thriller",
+    "Director": "N/A",
+    "Writer": "Vince Gilligan",
+    "Actors": "Bryan Cranston, Aaron Paul, Anna Gunn",
+    "Plot": "A chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine with a former student in order to secure his family's future.",
+    "Language": "English, Spanish",
+    "Country": "United States",
+    "Awards": "Won 16 Primetime Emmys. 154 wins & 247 nominations total",
+    "Poster": "https://m.media-amazon.com/images/M/MV5BYmQ4YWMxYjUtNjZmYi00MDQ1LWFjMjMtNjA5ZDdiYjdiODU5XkEyXkFqcGdeQXVyMTMzNDExODE5._V1_SX300.jpg",
+    "Ratings": [
+      {
+        "Source": "Internet Movie Database",
+        "Value": "9.5/10"
+      }
+    ],
+    "Metascore": "N/A",
+    "imdbRating": "9.5",
+    "imdbVotes": "1,998,765",
+    "imdbID": "tt0903747",
+    "Type": "series",
+    "totalSeasons": "5",
+    "Response": "True"
+  },
+  "movieWithAllRatings": {
+    "Title": "Inception",
+    "Year": "2010",
+    "imdbID": "tt1375666",
+    "Type": "movie",
+    "imdbRating": "8.8",
+    "imdbVotes": "2,426,842",
+    "Metascore": "74",
+    "Ratings": [
+      {
+        "Source": "Internet Movie Database",
+        "Value": "8.8/10"
+      },
+      {
+        "Source": "Rotten Tomatoes",
+        "Value": "87%"
+      },
+      {
+        "Source": "Metacritic",
+        "Value": "74/100"
+      }
+    ],
+    "Response": "True"
+  },
+  "movieWithMissingMetacritic": {
+    "Title": "The Room",
+    "Year": "2003",
+    "imdbID": "tt0368226",
+    "Type": "movie",
+    "imdbRating": "3.6",
+    "imdbVotes": "107,389",
+    "Metascore": "N/A",
+    "Ratings": [
+      {
+        "Source": "Internet Movie Database",
+        "Value": "3.6/10"
+      },
+      {
+        "Source": "Rotten Tomatoes",
+        "Value": "26%"
+      }
+    ],
+    "Response": "True"
+  },
+  "movieWithMissingRottenTomatoes": {
+    "Title": "Indie Film Example",
+    "Year": "2020",
+    "imdbID": "tt1234567",
+    "Type": "movie",
+    "imdbRating": "7.2",
+    "imdbVotes": "12,543",
+    "Metascore": "68",
+    "Ratings": [
+      {
+        "Source": "Internet Movie Database",
+        "Value": "7.2/10"
+      },
+      {
+        "Source": "Metacritic",
+        "Value": "68/100"
+      }
+    ],
+    "Response": "True"
+  },
+  "movieWithNoRatings": {
+    "Title": "Unknown Film",
+    "Year": "2024",
+    "imdbID": "tt9999999",
+    "Type": "movie",
+    "imdbRating": "N/A",
+    "imdbVotes": "N/A",
+    "Metascore": "N/A",
+    "Ratings": [],
+    "Response": "True"
+  },
+  "searchSuccess": {
+    "Search": [
+      {
+        "Title": "Batman Begins",
+        "Year": "2005",
+        "imdbID": "tt0372784",
+        "Type": "movie",
+        "Poster": "https://m.media-amazon.com/images/M/MV5BOTY4YjI2N2MtYmFlMC00ZjcyLTg3YjEtMDQyM2ZjYzQ5YWFkXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg"
+      },
+      {
+        "Title": "The Dark Knight",
+        "Year": "2008",
+        "imdbID": "tt0468569",
+        "Type": "movie",
+        "Poster": "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg"
+      },
+      {
+        "Title": "The Dark Knight Rises",
+        "Year": "2012",
+        "imdbID": "tt1345836",
+        "Type": "movie",
+        "Poster": "https://m.media-amazon.com/images/M/MV5BMTk4ODQzNDY3Ml5BMl5BanBnXkFtZTcwODA0NTM4Nw@@._V1_SX300.jpg"
+      }
+    ],
+    "totalResults": "3",
+    "Response": "True"
+  },
+  "searchNotFound": {
+    "Response": "False",
+    "Error": "Movie not found!"
+  },
+  "apiKeyInvalid": {
+    "Response": "False",
+    "Error": "Invalid API key!"
+  },
+  "incorrectImdbId": {
+    "Response": "False",
+    "Error": "Incorrect IMDb ID."
+  },
+  "tooManyResults": {
+    "Response": "False",
+    "Error": "Too many results."
+  }
+}
