@@ -4,7 +4,7 @@
  * Handles:
  * - Message passing between content scripts and OMDB API
  * - API key management
- * - Rating data caching
+ * - Rating data caching (via CacheManager)
  * - Background fetch operations
  *
  * @module ServiceWorker
@@ -12,15 +12,84 @@
 
 console.log('[Service Worker] Netflix Ratings service worker loaded');
 
-// Import OMDB service (note: in Chrome extension, we'll need to load this differently)
-// For now, we'll inline the necessary functionality
-
+// Import CacheManager
+// In Chrome extensions, we need to use dynamic imports or inline
+// For now, we'll create a minimal instance here
 const OMDB_API_BASE_URL = 'https://www.omdbapi.com/';
-const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const DEFAULT_API_KEY = 'b9bd48a6'; // Fallback API key
 
-// In-memory cache for ratings (persists while service worker is alive)
-let ratingsCache = new Map();
+// Global cache manager instance
+let cacheManager = null;
+
+/**
+ * Initialize cache manager
+ */
+async function initializeCacheManager() {
+  try {
+    // Import CacheManager class
+    const CacheManager = await import('../utils/cache-manager.js').then(m => m.default || m);
+    cacheManager = new CacheManager();
+    await cacheManager.init();
+    console.log('[Service Worker] Cache manager initialized');
+  } catch (error) {
+    console.warn('[Service Worker] Failed to load CacheManager, using fallback cache:', error.message);
+    // Fallback: create simple in-memory cache if CacheManager fails
+    cacheManager = createFallbackCacheManager();
+  }
+}
+
+/**
+ * Create fallback cache manager for when CacheManager import fails
+ * @returns {Object} Simple cache manager object
+ */
+function createFallbackCacheManager() {
+  const fallbackCache = new Map();
+  const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+  return {
+    get: async function(key) {
+      const entry = fallbackCache.get(key);
+      if (!entry) return null;
+
+      const age = Date.now() - entry.timestamp;
+      if (age > CACHE_DURATION_MS) {
+        fallbackCache.delete(key);
+        return null;
+      }
+      return entry.data;
+    },
+
+    set: async function(key, data) {
+      fallbackCache.set(key, {
+        data,
+        timestamp: Date.now(),
+      });
+      console.log('[Service Worker] Cached to fallback:', key, `Cache size: ${fallbackCache.size}`);
+    },
+
+    clear: async function() {
+      const size = fallbackCache.size;
+      fallbackCache.clear();
+      return size;
+    },
+
+    getStats: async function() {
+      return {
+        totalItems: fallbackCache.size,
+        sizeEstimateKb: 0,
+        cacheDurationHours: 24,
+      };
+    },
+
+    getCacheDuration: async function() {
+      return 24;
+    },
+
+    setCacheDuration: async function(hours) {
+      console.log('[Service Worker] Fallback cache manager ignoring duration change');
+    },
+  };
+}
 
 /**
  * Initialize service worker
@@ -30,12 +99,25 @@ chrome.runtime.onInstalled.addListener((details) => {
 
   if (details.reason === 'install') {
     console.log('[Service Worker] First install - setting default API key');
-    chrome.storage.sync.set({ omdbApiKey: DEFAULT_API_KEY });
+    chrome.storage.sync.set({
+      omdbApiKey: DEFAULT_API_KEY,
+      cacheDurationHours: 24, // Default 24 hours
+    });
   }
+
+  // Initialize cache manager
+  initializeCacheManager().catch(err => {
+    console.error('[Service Worker] Failed to initialize cache manager:', err);
+  });
+});
+
+// Initialize cache manager on startup
+initializeCacheManager().catch(err => {
+  console.error('[Service Worker] Failed to initialize cache manager on startup:', err);
 });
 
 /**
- * Handle messages from content scripts
+ * Handle messages from content scripts and popup
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('[Service Worker] Received message:', request.type, 'from tab:', sender.tab?.id);
@@ -55,6 +137,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'GET_CACHE_STATS') {
     console.log('[Service Worker] Handling GET_CACHE_STATS request');
     handleGetCacheStats(sendResponse);
+    return true;
+  }
+
+  if (request.type === 'CACHE_DURATION_CHANGED') {
+    console.log('[Service Worker] Handling CACHE_DURATION_CHANGED request');
+    handleCacheDurationChanged(request.duration, sendResponse);
     return true;
   }
 
@@ -79,13 +167,18 @@ async function handleFetchRatings(payload, sendResponse) {
   }
 
   try {
+    // Wait for cache manager to be ready
+    if (!cacheManager) {
+      await initializeCacheManager();
+    }
+
     // Get API key from storage
     const apiKey = await getApiKey();
     console.log('[Service Worker] API key retrieved:', apiKey ? '✓' : '✗');
 
     // Check cache first
     const cacheKey = createCacheKey(payload);
-    const cached = getFromCache(cacheKey);
+    const cached = await cacheManager.get(cacheKey);
 
     if (cached) {
       console.log('[Service Worker] Cache hit for:', payload.title);
@@ -109,7 +202,7 @@ async function handleFetchRatings(payload, sendResponse) {
     console.log('[Service Worker] Extracted ratings:', ratings);
 
     // Cache the result
-    setCache(cacheKey, ratings);
+    await cacheManager.set(cacheKey, ratings);
 
     sendResponse({ success: true, ratings });
   } catch (error) {
@@ -123,11 +216,25 @@ async function handleFetchRatings(payload, sendResponse) {
  *
  * @param {Function} sendResponse - Response callback
  */
-function handleClearCache(sendResponse) {
-  const size = ratingsCache.size;
-  ratingsCache.clear();
-  console.log(`[Service Worker] Cache cleared. Removed ${size} entries`);
-  sendResponse({ success: true, cleared: size });
+async function handleClearCache(sendResponse) {
+  try {
+    if (!cacheManager) {
+      await initializeCacheManager();
+    }
+
+    // Get stats before clearing
+    const stats = await cacheManager.getStats();
+    const cleared = stats.totalItems || 0;
+
+    // Clear cache
+    await cacheManager.clear();
+    console.log(`[Service Worker] Cache cleared. Removed ${cleared} entries`);
+
+    sendResponse({ success: true, cleared });
+  } catch (error) {
+    console.error('[Service Worker] Error clearing cache:', error);
+    sendResponse({ success: false, error: error.message });
+  }
 }
 
 /**
@@ -135,13 +242,45 @@ function handleClearCache(sendResponse) {
  *
  * @param {Function} sendResponse - Response callback
  */
-function handleGetCacheStats(sendResponse) {
-  const stats = {
-    size: ratingsCache.size,
-    entries: Array.from(ratingsCache.keys()),
-  };
-  console.log('[Service Worker] Cache stats:', stats);
-  sendResponse({ success: true, stats });
+async function handleGetCacheStats(sendResponse) {
+  try {
+    if (!cacheManager) {
+      await initializeCacheManager();
+    }
+
+    const stats = await cacheManager.getStats();
+    console.log('[Service Worker] Cache stats:', stats);
+
+    sendResponse({ success: true, stats });
+  } catch (error) {
+    console.error('[Service Worker] Error getting cache stats:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+/**
+ * Handle cache duration change notification
+ *
+ * @param {number} duration - New cache duration in hours
+ * @param {Function} sendResponse - Response callback
+ */
+async function handleCacheDurationChanged(duration, sendResponse) {
+  try {
+    console.log('[Service Worker] Cache duration changed to:', duration, 'hours');
+
+    if (!cacheManager) {
+      await initializeCacheManager();
+    }
+
+    // Update cache manager's understanding of the new duration
+    await cacheManager.setCacheDuration(duration);
+
+    console.log('[Service Worker] Cache duration updated successfully');
+    sendResponse({ success: true, message: 'Cache duration updated' });
+  } catch (error) {
+    console.error('[Service Worker] Error updating cache duration:', error);
+    sendResponse({ success: false, error: error.message });
+  }
 }
 
 /**
@@ -305,47 +444,6 @@ function extractRatings(omdbData) {
  */
 function createCacheKey(titleInfo) {
   return `${titleInfo.title}:${titleInfo.year || ''}:${titleInfo.type || ''}`;
-}
-
-/**
- * Get item from cache if not expired
- *
- * @param {string} key - Cache key
- * @returns {Object|null} Cached data or null
- */
-function getFromCache(key) {
-  const cached = ratingsCache.get(key);
-
-  if (!cached) {
-    console.log('[Service Worker] Cache miss for:', key);
-    return null;
-  }
-
-  const now = Date.now();
-  const age = now - cached.timestamp;
-
-  if (age > CACHE_DURATION_MS) {
-    console.log('[Service Worker] Cache entry expired:', key);
-    ratingsCache.delete(key);
-    return null;
-  }
-
-  console.log('[Service Worker] Cache hit for:', key, `Age: ${Math.round(age / 1000 / 60)} minutes`);
-  return cached.data;
-}
-
-/**
- * Set item in cache with timestamp
- *
- * @param {string} key - Cache key
- * @param {Object} data - Data to cache
- */
-function setCache(key, data) {
-  ratingsCache.set(key, {
-    data,
-    timestamp: Date.now(),
-  });
-  console.log('[Service Worker] Cached data for:', key, `Cache size: ${ratingsCache.size}`);
 }
 
 /**

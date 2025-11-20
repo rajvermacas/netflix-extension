@@ -4,6 +4,11 @@
  * Provides interface to fetch movie/series ratings from OMDB API.
  * Includes caching, error handling, and comprehensive logging.
  *
+ * NOTE: This service includes its own caching implementation. For the extension's main
+ * caching needs, the CacheManager (src/utils/cache-manager.js) is used in service-worker.js.
+ * If this service is used in the future, consider refactoring to use the shared CacheManager
+ * for consistency and persistence across service worker restarts.
+ *
  * @module OmdbService
  */
 

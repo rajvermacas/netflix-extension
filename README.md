@@ -6,8 +6,9 @@ A Chrome extension that displays **IMDb**, **Metacritic**, and **Rotten Tomatoes
 
 - **Real-time Ratings**: Automatically fetches and displays ratings from three major sources
 - **Seamless Integration**: Rating badges appear directly on Netflix title cards, modals, and player
-- **Smart Caching**: 24-hour cache to minimize API calls and improve performance
-- **Customizable**: Configure your own OMDB API key through the popup settings
+- **Smart Caching**: Configurable cache duration (1 hour to 30 days) to minimize API calls and improve performance
+- **Persistent Cache**: Cache data survives browser restarts and service worker unloads for better reliability
+- **Customizable**: Configure your own OMDB API key and cache duration through the popup settings
 - **Privacy-Focused**: No data collection, all processing happens locally
 - **Comprehensive Logging**: Detailed console logs for debugging and monitoring
 
@@ -68,7 +69,10 @@ The extension requires an OMDB API key to fetch ratings data:
 
 3. **Manage Cache**
    - Click the extension icon to open settings
-   - View cache statistics (number of cached items)
+   - View cache statistics (number of items, cache size, current duration)
+   - Configure cache duration:
+     - **Predefined options**: 1 hour, 6 hours, 12 hours, 24 hours (default), 7 days, 30 days
+     - **Custom duration**: Enter any value between 1 and 8760 hours (1 year)
    - Clear cache to force fresh data retrieval
 
 ## Project Structure
@@ -133,9 +137,17 @@ netflix-extension/
 │      Service Worker (service-worker.js)                      │
 │  • Handles message requests                                  │
 │  • Manages API key storage                                   │
-│  • Implements caching (24h TTL)                              │
+│  • Uses CacheManager for configurable caching               │
 │  • Fetches data from OMDB API                                │
 │  • Extracts and formats ratings                              │
+│                                                               │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ CacheManager (src/utils/cache-manager.js)            │ │
+│  │ • Persistent storage via chrome.storage.local        │ │
+│  │ • Configurable duration (user-settable)              │ │
+│  │ • In-memory fallback for performance                 │ │
+│  │ • Automatic expiration and cleanup                   │ │
+│  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
                               ↓ ↑ (HTTP)
 ┌─────────────────────────────────────────────────────────────┐
@@ -221,11 +233,31 @@ NODE_ENV=development
 
 **Note**: The `.env` file is git-ignored for security.
 
+### Cache Management
+
+#### CacheManager Class
+
+The extension uses a unified `CacheManager` class (`src/utils/cache-manager.js`) for all caching operations:
+
+- **Persistent Storage**: Uses `chrome.storage.local` to survive service worker restarts
+- **In-Memory Fallback**: Maintains an in-memory Map as a fallback for faster access
+- **Configurable Duration**: Cache duration is stored in `chrome.storage.sync` and respects user preferences
+- **Automatic Cleanup**: Expires old entries and maintains a 500-item size limit
+- **Stats Tracking**: Provides cache size, item count, and duration information
+
 ### Chrome Storage
 
-The extension uses `chrome.storage.sync` for:
-- OMDB API key
-- User preferences (future)
+The extension uses Chrome Storage APIs for:
+
+**chrome.storage.sync** (synced across devices):
+- `omdbApiKey`: OMDB API key for fetching ratings
+- `cacheDurationHours`: User-configured cache duration (default: 24 hours)
+
+**chrome.storage.local** (persistent, not synced):
+- `netflix_ratings_cache`: Persistent cache data with timestamps
+  - Survives service worker unloads and browser restarts
+  - Automatically cleaned when cache duration expires
+  - Limited to 500 items to prevent excessive storage usage
 
 ## Troubleshooting
 
@@ -270,7 +302,8 @@ The extension uses `chrome.storage.sync` for:
 
 - **Initial Load**: < 100ms content script injection
 - **Title Detection**: Debounced 200ms to avoid excessive processing
-- **API Calls**: Cached for 24 hours (reduces redundant calls)
+- **API Calls**: Configurable cache (1 hour to 30 days) with persistent storage
+- **Cache Persistence**: Survives service worker unloads and browser restarts
 - **DOM Injection**: < 50ms per badge
 - **Memory Usage**: ~5MB typical (including cache)
 
